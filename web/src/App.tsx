@@ -3028,6 +3028,43 @@ export function App() {
     });
   }
 
+  function openTaskInClaude(task: Task) {
+    const projectless = task.projectId === GLOBAL_PROJECT_ID;
+    const taskboardProject = projects.find((project) => project.id === task.projectId);
+    const savedProjectIdentity = projectCodexIdentities[task.projectId];
+    const projectContext = savedProjectIdentity
+      ?? codexProjectContextForTaskProject(task.projectId);
+    if (!projectless && projectContext?.codexProjectKind === "remote") {
+      setActionError(text(
+        "Claude Desktop 启动型 MVP 目前只支持本地工作目录。",
+        "The Claude Desktop launch MVP currently supports local workspaces only.",
+      ));
+      return;
+    }
+    const workspacePath = task.developmentContext?.type === "worktree"
+      ? task.developmentContext.path
+      : projectless
+        ? undefined
+        : projectContext?.workspacePath
+          ?? deviceWorkspacePaths[task.projectId]
+          ?? taskboardProject?.workspacePath;
+    const deepLink = new URL("claude://code/new");
+    deepLink.searchParams.set("q", text(
+      `/manage-taskboard 议题 ID：${task.identifier}`,
+      `/manage-taskboard Issue ID: ${task.identifier}`,
+    ));
+    if (workspacePath) deepLink.searchParams.set("folder", workspacePath);
+    const url = deepLink.toString();
+    if (embedded && window.parent !== window) {
+      postEmbeddedHostMessage({
+        type: "taskboard:open-external",
+        payload: { url },
+      });
+      return;
+    }
+    window.location.assign(url);
+  }
+
   function changeProject(projectId: string) {
     closeContextMenu();
     setProjectContextMenu(null);
@@ -3619,6 +3656,7 @@ export function App() {
             onOpenThread={openThread}
             onOpenLegacyLocalThread={openLegacyLocalThread}
             onOpenInThread={openTaskInThread}
+            onOpenInClaude={openTaskInClaude}
             onCopy={(text, message) => void copyText(text, message)}
             openingThread={openingThreadTaskId === detailTask.id}
             onError={setActionError}
