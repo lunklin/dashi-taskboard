@@ -2018,6 +2018,11 @@ fn main() {
                 fs::remove_dir_all(&global_skill)?;
             }
             copy_directory(&bundled_skill, &global_skill)?;
+            let claude_skill = home_directory.join(".claude/skills/manage-taskboard");
+            if claude_skill.exists() {
+                fs::remove_dir_all(&claude_skill)?;
+            }
+            copy_directory(&bundled_skill, &claude_skill)?;
             #[cfg(target_os = "macos")]
             let data_directory = home_directory.join("Library/Application Support/Codex Taskboard");
             #[cfg(target_os = "macos")]

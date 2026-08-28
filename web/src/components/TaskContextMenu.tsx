@@ -425,7 +425,7 @@ export function TaskContextMenu({
           )}
         </MenuItem>
         <MenuItem
-          label={text("在新对话打开", "Open in new conversation")}
+          label={text("在新对话打开（Codex）", "Open in new conversation (Codex)")}
           icon={<NewConversationIcon color="currentColor" size={16} />}
           disabled={openInThreadDisabled}
           onPointerEnter={closeSubmenu}

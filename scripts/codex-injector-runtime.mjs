@@ -1,6 +1,16 @@
 const HOST_REQUEST_ERROR = "自动认领配置暂时无法应用，请刷新后重试";
 const AUTOMATION_SCHEMA_DIAGNOSTIC = "AUTOMATION_SCHEMA_MISMATCH";
 
+function isAllowedExternalUrl(url) {
+  return url.protocol === "http:"
+    || url.protocol === "https:"
+    || (
+      url.protocol === "claude:"
+      && url.hostname === "code"
+      && url.pathname === "/new"
+    );
+}
+
 function parseHostRequest(payload, parseAutomationRequest) {
   if (typeof payload !== "string" || payload.length > 4_194_304) {
     return { id: null, request: null, error: HOST_REQUEST_ERROR };
@@ -30,7 +40,7 @@ function parseHostRequest(payload, parseAutomationRequest) {
   if (request.action === "open-external" && typeof request.url === "string") {
     try {
       const url = new URL(request.url);
-      if ((url.protocol === "http:" || url.protocol === "https:") && url.href.length <= 2_048) {
+      if (isAllowedExternalUrl(url) && url.href.length <= 2_048) {
         return { id, request: { ...request, url: url.href }, error: null };
       }
     } catch {}
