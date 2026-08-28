@@ -28,7 +28,7 @@
   const HOST_HEARTBEAT_MAX_AGE_MS = 8_000;
   const MACOS_TITLEBAR_SAFE_LEFT = 80;
   const FRAME_REFRESH_PARAM = "__codex_taskboard_refresh";
-  const PLUGIN_LABELS = ["插件", "plugins"];
+  const PLUGIN_LABELS = ["插件", "外掛程式", "plugins"];
   const NATIVE_PAGE_LABELS = [
     "新建任务",
     "新聊天",
@@ -107,6 +107,19 @@
 
   function hostText(chinese, english) {
     return resolvedHostLanguage() === "zh" ? chinese : english;
+  }
+
+  function taskboardEntryText(simplifiedChinese, traditionalChinese, english) {
+    const language = hostLanguage().trim().replaceAll("_", "-").toLowerCase();
+    if (
+      language.includes("-hant")
+      || language === "zh-tw"
+      || language === "zh-hk"
+      || language === "zh-mo"
+    ) {
+      return traditionalChinese;
+    }
+    return hostText(simplifiedChinese, english);
   }
 
   function hostError(chinese, english) {
@@ -317,10 +330,16 @@
 
   function syncEntryText(button = entry) {
     if (!button) return;
-    button.setAttribute("aria-label", hostText("打开任务面板", "Open Taskboard"));
-    button.setAttribute("title", hostText("任务面板", "Taskboard"));
-    if (entryLabel) entryLabel.textContent = hostText("任务面板", "Taskboard");
-    else button.textContent = hostText("任务面板", "Taskboard");
+    button.setAttribute(
+      "aria-label",
+      taskboardEntryText("打开任务面板", "開啟任務面板", "Open Taskboard"),
+    );
+    button.setAttribute("title", taskboardEntryText("任务面板", "任務面板", "Taskboard"));
+    if (entryLabel) {
+      entryLabel.textContent = taskboardEntryText("任务面板", "任務面板", "Taskboard");
+    } else {
+      button.textContent = taskboardEntryText("任务面板", "任務面板", "Taskboard");
+    }
   }
 
   function syncEntryState() {

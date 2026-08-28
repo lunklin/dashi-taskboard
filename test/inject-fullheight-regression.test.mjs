@@ -49,7 +49,7 @@ async function chromeExecutable() {
 function fixtureHtml(origin) {
   const encodedSource = Buffer.from(source).toString("base64");
   return `<!doctype html>
-<html>
+<html lang="zh-TW">
   <head>
     <meta charset="utf-8">
     <style>
@@ -70,7 +70,7 @@ function fixtureHtml(origin) {
           <div>
             <button><span>首页</span></button>
             <button><span>站点</span></button>
-            <button><svg></svg><span class="text-fade-truncate">插件</span></button>
+            <button><svg></svg><span class="text-fade-truncate">外掛程式</span></button>
           </div>
           <section data-app-action-sidebar-section>
             <div data-app-action-sidebar-section-heading="项目">项目</div>
@@ -199,6 +199,7 @@ function fixtureHtml(origin) {
         const surface = document.getElementById("surface");
         const conversation = document.getElementById("conversation");
         const result = {
+          entryText: entry?.textContent.trim(),
           panelVisibleBefore,
           browserPanelClosed: window.__browserPanelClosed,
           conversationTop: conversation.getBoundingClientRect().top,
@@ -298,6 +299,7 @@ test("Taskboard fills the workspace, opens HTTPS links and revokes hostile ifram
   assert.ok(encodedResult, "fixture did not report an injection result");
   const result = JSON.parse(Buffer.from(encodedResult, "base64").toString("utf8"));
   assert.deepEqual(result, {
+    entryText: "任務面板",
     panelVisibleBefore: true,
     browserPanelClosed: true,
     conversationTop: 0,
