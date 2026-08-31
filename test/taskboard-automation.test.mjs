@@ -7,6 +7,7 @@ import {
   buildTaskboardAutomationName,
   buildTaskboardAutomationPrompt,
   buildTaskboardAutomationSpec,
+  buildTaskctlCommand,
   parseTaskboardAutomationHostRequest,
   reconcileTaskboardAutomation,
   taskboardAutomationPolicyOperation,
@@ -204,7 +205,7 @@ test("the remote automation prompt keeps taskctl local and delegates work to the
   assert.match(prompt, /移动到 in_review/);
 });
 
-test("the generated automation command uses the packaged CLI and an argv runtime file", () => {
+test("the generated development automation command uses the CLI and an argv runtime file", () => {
   const previous = process.env.CODEX_TASKBOARD_RUNTIME_FILE;
   process.env.CODEX_TASKBOARD_RUNTIME_FILE = "/Users/example/Library/Application Support/Codex Taskboard/launcher-runtime.json";
   try {
@@ -222,6 +223,20 @@ test("the generated automation command uses the packaged CLI and an argv runtime
       process.env.CODEX_TASKBOARD_RUNTIME_FILE = previous;
     }
   }
+});
+
+test("the generated macOS packaged automation command uses the taskctl wrapper", () => {
+  const command = buildTaskctlCommand({
+    executablePath: "/Users/example/Applications/Codex Taskboard.app/Contents/MacOS/node",
+    platform: "darwin",
+    runtimeFilePath: "/Users/example/Library/Application Support/Codex Taskboard/launcher-runtime.json",
+  });
+
+  assert.equal(
+    command,
+    "'/Users/example/Applications/Codex Taskboard.app/Contents/Resources/bin/taskctl'",
+  );
+  assert.doesNotMatch(command, /--runtime-file|taskctl\.mjs|Contents\/MacOS\/node/);
 });
 
 test("the generated cron spec uses the selected whitelisted local Codex options", () => {

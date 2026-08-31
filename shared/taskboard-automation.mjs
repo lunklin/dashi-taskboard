@@ -93,7 +93,7 @@ export function buildTaskboardAutomationName(request) {
 }
 
 export function buildTaskboardAutomationPrompt(request) {
-  const taskctlCommand = buildTaskctlCommand(request);
+  const taskctlCommand = buildTaskctlCommand();
   const remoteProject = request.codexProjectKind === "remote";
   const remoteProjects = request.remoteProjects ?? [];
   const executionInstructions = remoteProject
@@ -131,12 +131,31 @@ export function buildTaskboardAutomationPrompt(request) {
   ].join("\n");
 }
 
-function buildTaskctlCommand(request) {
-  const command = `${shellQuote(process.execPath)} ${shellQuote(taskctlCliPath)}`;
-  const runtimeFilePath = process.env.CODEX_TASKBOARD_RUNTIME_FILE;
+export function buildTaskctlCommand({
+  executablePath = process.execPath,
+  platform = process.platform,
+  runtimeFilePath = process.env.CODEX_TASKBOARD_RUNTIME_FILE,
+} = {}) {
+  const packagedWrapperPath = resolvePackagedTaskctlWrapper(executablePath, platform);
+  if (packagedWrapperPath) return shellQuote(packagedWrapperPath);
+
+  const command = `${shellQuote(executablePath)} ${shellQuote(taskctlCliPath)}`;
   return runtimeFilePath
     ? `${command} --runtime-file ${shellQuote(runtimeFilePath)}`
     : command;
+}
+
+function resolvePackagedTaskctlWrapper(executablePath, platform) {
+  if (platform !== "darwin") return null;
+  const executableDirectory = path.dirname(executablePath);
+  const contentsDirectory = path.dirname(executableDirectory);
+  const appDirectory = path.dirname(contentsDirectory);
+  if (
+    path.basename(executableDirectory) !== "MacOS"
+    || path.basename(contentsDirectory) !== "Contents"
+    || !path.basename(appDirectory).endsWith(".app")
+  ) return null;
+  return path.join(contentsDirectory, "Resources", "bin", "taskctl");
 }
 
 function shellQuote(value) {
