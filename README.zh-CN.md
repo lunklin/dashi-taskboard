@@ -191,6 +191,12 @@ npm run codex:inject -- --port 9229 --open
 
 请参阅[云端协作](docs/cloud-collaboration.md)，了解所有者部署、现有 GitHub 安装设置、密码轮换、本地路径映射和一次性本地数据迁移流程。
 
+## 开发 CI 与 Runner 选择
+
+GitHub 是本仓库代码、PR、审核和检查结果的真实来源。PR 的 `Check` 工作流程分别在 Ubuntu、macOS 和 Windows 上运行真实构建与测试。按 [GitHub 计费规则](https://docs.github.com/en/billing/concepts/product-billing/github-actions)，本公开仓库使用标准 GitHub 托管 Runner 不产生额外的 Actions 执行分钟费用；Artifact 和 Cache 存储仍需单独核对。保留各平台对应的检查，不把公开 PR 的代码送到个人 Mac mini 自架 Runner。
+
+签名版 `Release macOS` 工作流程另有签名、公证、受保护环境和发布关卡；CI 通过不授权发布。若未来考虑自架，须先审查独立隔离 VM、主机容量与凭证边界，并验证最终 PR 版本的成功、失败和 Runner 离线行为，再提出 Runner 变更；不得因节省分钟费用降低跨平台检查。
+
 ## 验证
 
 ```bash
