@@ -198,6 +198,12 @@ Each device keeps its own project checkout mapping and continues to use a local 
 
 See [Cloud collaboration](docs/cloud-collaboration.md) for owner deployment, existing GitHub installation setup, password rotation, local path mapping, and the one-time local-data migration flow.
 
+## Development CI and runner choice
+
+GitHub is the source of truth for this repository's code, PRs, reviews, and check results. The PR `Check` workflow runs real Ubuntu, macOS, and Windows jobs. For this public repository, standard GitHub-hosted runners do not add Actions runner-minute charges under [GitHub's billing rules](https://docs.github.com/en/billing/concepts/product-billing/github-actions); artifact and cache storage are tracked separately. Keep the cross-platform checks on their matching platforms. Public PR code must not run on a personal Mac mini self-hosted runner.
+
+The signed `Release macOS` workflow uses separate signing, notarization, protected-environment, and publication gates. CI success does not authorize a release. Any self-hosted proposal first needs a dedicated isolated VM, host-capacity and credential-boundary audit, and exact-head PR success/failure/offline evidence; do not change runners or weaken checks based only on a cost estimate.
+
 ## Verify
 
 ```bash
